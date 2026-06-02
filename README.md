@@ -54,7 +54,6 @@ It is highly recommended to use **[AndKittyInjector](https://github.com/MJx0/And
 
 #### Why AndKittyInjector?
 - **Library Hiding**: Capable of hiding library segments from `/proc/self/maps` and native linker lists (`dladdr`, `dl_iterate_phdr`) to bypass simple anti-cheat detection.
-- **Advanced Injection Methods**: Support for standard `dlopen` and in-memory `memfd` loading.
 - **Compatibility**: Built specifically for Android game hacking/reverse engineering, with tested support from Android 5.0 up to 16.
 
 ### Quick Start Guide:
