@@ -46,7 +46,7 @@ echo [SUCCESS] Dependencies resolved successfully.
 echo.
 
 :: List of target ABIs to build
-set "ABIS=arm64-v8a armeabi-v7a x86 x86_64"
+set "ABIS=arm64-v8a armeabi-v7a x86_64"
 
 :: Create main output directory for libs inside build folder
 if not exist "build\libs" (
