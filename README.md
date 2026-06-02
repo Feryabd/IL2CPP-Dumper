@@ -35,6 +35,15 @@ build/libs/
 
 ---
 
+## Configuration
+
+Before building the dumper, you must configure the signature patterns for your target game. You can customize these by editing the C++ header file:
+- **[config.hpp](file:///c:/Users/Feng-CN/Desktop/Android/RE/Analysis/Critical-OPS/Dumper/include/utils/config.hpp)**
+
+Inside this file, you can define target signature patterns for each architecture (`AArch64_Sigs`, `ARM_Sigs`, `x86_64_Sigs`). Refer to the detailed header comment inside the config file for a step-by-step walkthrough on using IDA Pro or Ghidra to extract and verify these signature arrays.
+
+---
+
 ## Usage & Injection
 
 Because this dumper operates in-memory to directly query the active game structures, it **must be injected into the target game process** on the Android device.
