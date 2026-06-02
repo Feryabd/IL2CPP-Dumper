@@ -1,0 +1,3 @@
+---
+# Disables automatic code formatting by clangd / clang-format
+DisableFormat: true
