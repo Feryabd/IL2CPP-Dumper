@@ -41,7 +41,7 @@ namespace Dumper
     // Helper: Dynamic Module Scanning
     uintptr_t GetModuleBase(const char* moduleName)
     {
-        ElfScanner libElf = g_KittyMgr.elfScanner.findElf(moduleName, EScanElfType::Any, EScanElfFilter::App);
+        ElfScanner libElf = g_KittyMgr.elfScanner.findElf(moduleName, EScanElfType::Native, EScanElfFilter::App);
         return libElf.base();
     }
 

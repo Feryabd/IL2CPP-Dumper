@@ -38,7 +38,7 @@ build/libs/
 ## Configuration
 
 Before building the dumper, you must configure the signature patterns for your target game. You can customize these by editing the C++ header file:
-- **[config.hpp](file:///c:/Users/Feng-CN/Desktop/Android/RE/Analysis/Critical-OPS/Dumper/include/utils/config.hpp)**
+- **[config.hpp](include/utils/config.hpp)**
 
 Inside this file, you can define target signature patterns for each architecture (`AArch64_Sigs`, `ARM_Sigs`, `x86_64_Sigs`). Refer to the detailed header comment inside the config file for a step-by-step walkthrough on using IDA Pro or Ghidra to extract and verify these signature arrays.
 
@@ -62,3 +62,20 @@ It is highly recommended to use **[AndKittyInjector](https://github.com/MJx0/And
 3. Launch the target game.
 4. Run `AndKittyInjector` to inject `libil2cpp_dumper.so` into the game process.
 5. The dumper will initialize, run its signature scanner, resolve APIs, and dump the assembly layouts.
+
+### Output Location
+
+Upon successful execution, the generated C# dump file will be saved directly to the device's external storage `Download` directory:
+
+- **`/sdcard/Download/dump.cs`**
+
+*(Note: Ensure the target application has storage permissions, or use an environment that bypasses it, otherwise the file write may fail).*
+
+### Troubleshooting
+
+If the dumper fails or you do not see the output file, you can analyze the internal execution logs using `adb logcat`. The dumper prints its progress, signature scanning results, and any errors under the `IL2CPP_DUMPER` tag.
+
+Run the following command from your PC terminal to monitor the logs in real-time:
+```bash
+adb logcat -s "IL2CPP_DUMPER"
+```

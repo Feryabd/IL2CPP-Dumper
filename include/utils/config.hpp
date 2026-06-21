@@ -53,7 +53,10 @@ namespace Config
 
     struct ApiSignature {
         const char* name;
-        const char* pattern;
+        const char* patterns[5];
+
+        constexpr ApiSignature(const char* n, const char* p1 = nullptr, const char* p2 = nullptr, const char* p3 = nullptr, const char* p4 = nullptr, const char* p5 = nullptr)
+            : name(n), patterns{p1, p2, p3, p4, p5} {}
     };
 
     // ============================================================
@@ -73,11 +76,8 @@ namespace Config
         {"il2cpp_thread_attach",         ""}
     };
 
-    // ============================================================
-    // Target Game: Critical Ops (AArch64 / ARM64)
-    // ============================================================
     static constexpr ApiSignature AArch64_Sigs[] = {
-        {"il2cpp_domain_get",            "? ? ? F8 ? ? ? A9 ? ? ? D0 ? ? ? F9 ? ? ? B5"},
+        {"il2cpp_domain_get",            "? ? ? F8 ? ? ? A9 ? ? ? 90 ? ? ? F9 ? ? ? B5", "? ? ? F8 ? ? ? A9 ? ? ? D0 ? ? ? F9 ? ? ? B5"},
         {"il2cpp_domain_get_assemblies", "? ? ? A9 F3 03 01 AA ? ? ? 94 ? ? ? A9 08 01 00 CB"},
         {"il2cpp_image_get_class",       "? ? ? F8 ? ? ? 94 ? ? ? F8 ? ? ? 14 ? ? ? D1"},
         {"il2cpp_class_get_interfaces",  "? ? ? B4 ? ? ? F8 ? ? ? A9 ? ? ? F9 F3 03 01 AA F4 03 00 AA ? ? ? B4 ? ? ? F9 ? ? ? 79 ? ? ? 91 29 0D 0A 8B 1F 01 09 EB ? ? ? 54 ? ? ? 14 E0 03 1F AA C0 03 5F D6 E0 03 14 AA ? ? ? 94 ? ? ? 79 ? ? ? 34 ? ? ? F9 ? ? ? F9 ? ? ? F9 ? ? ? 14 E0 03 1F AA ? ? ? A9 ? ? ? F8 C0 03 5F D6 ? ? ? D1 ? ? ? A9 ? ? ? F9"},
@@ -86,7 +86,7 @@ namespace Config
         {"il2cpp_method_get_param_name", "? ? ? 39 1F 01 01 6B ? ? ? 54 ? ? ? D1"},
         {"il2cpp_class_from_type",       "? ? ? 52 ? ? ? 14 ? ? ? 91 C0 03 5F D6"},
         {"il2cpp_type_get_name",         "? ? ? D1 ? ? ? F9 ? ? ? A9 ? ? ? 91 E1 03 1F 2A"},
-        {"il2cpp_thread_attach",         "? ? ? A9 ? ? ? A9 ? ? ? D0 F3 03 00 AA ? ? ? F9 ? ? ? B9 E0 03 08 2A"}
+        {"il2cpp_thread_attach",         "? ? ? 14 ? ? ? 14 ? ? ? 14 ? ? ? 14 ? ? ? 14 E1 03 00 AA"}
     };
 
     static constexpr ApiSignature ARM_Sigs[] = {

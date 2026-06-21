@@ -43,17 +43,18 @@ namespace IL2CPP
 
         #define DO_API(r, n, p) \
             { \
-                const char* pattern = nullptr; \
                 for (size_t i = 0; i < activeRegistry->count; ++i) { \
                     if (std::string_view(activeRegistry->signatures[i].name) == #n) { \
-                        pattern = activeRegistry->signatures[i].pattern; \
-                        break; \
-                    } \
-                } \
-                if (pattern && pattern[0] != '\0') { \
-                    for (const auto& seg : segments) { \
-                        if (!seg.readable) continue; \
-                        n = (r (*) p)g_KittyMgr.memScanner.findIdaPatternFirst(seg.startAddress, seg.endAddress, pattern); \
+                        for (size_t j = 0; j < 5; ++j) { \
+                            const char* pattern = activeRegistry->signatures[i].patterns[j]; \
+                            if (!pattern || pattern[0] == '\0') continue; \
+                            for (const auto& seg : segments) { \
+                                if (!seg.readable) continue; \
+                                n = (r (*) p)g_KittyMgr.memScanner.findIdaPatternFirst(seg.startAddress, seg.endAddress, pattern); \
+                                if (n) break; \
+                            } \
+                            if (n) break; \
+                        } \
                         if (n) break; \
                     } \
                 } \

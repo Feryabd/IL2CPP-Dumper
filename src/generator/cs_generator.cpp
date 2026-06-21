@@ -20,21 +20,21 @@ namespace Dumper
         // -----------------------------------------------------------------------
         // Struct-direct accessors
         // -----------------------------------------------------------------------
-        inline const char* ClassName(const Il2CppClass* k) { return k ? k->name : "Unknown"; }
-        inline const char* ClassNS(const Il2CppClass* k) { return k ? k->namespaze : ""; }
-        inline Il2CppClass* ClassParent(const Il2CppClass* k) { return k ? k->parent : nullptr; }
-        inline uint32_t     ClassFlags(const Il2CppClass* k) { return k ? k->flags : 0; }
-        inline bool         ClassIsIface(const Il2CppClass* k) { return k && (k->flags & TYPE_ATTRIBUTE_INTERFACE); }
-        inline bool         ClassIsEnum(const Il2CppClass* k) { return k && k->enumtype; }
-        inline bool         ClassIsValue(const Il2CppClass* k) { return k && k->byval_arg.valuetype; }
-        inline uint32_t     ClassToken(const Il2CppClass* k) { return k ? k->token : 0; }
+        inline const char*       ClassName(const Il2CppClass* k) { return k ? k->name : "Unknown"; }
+        inline const char*       ClassNS(const Il2CppClass* k) { return k ? k->namespaze : ""; }
+        inline Il2CppClass*      ClassParent(const Il2CppClass* k) { return k ? k->parent : nullptr; }
+        inline uint32_t          ClassFlags(const Il2CppClass* k) { return k ? k->flags : 0; }
+        inline bool              ClassIsIface(const Il2CppClass* k) { return k && (k->flags & TYPE_ATTRIBUTE_INTERFACE); }
+        inline bool              ClassIsEnum(const Il2CppClass* k) { return k && k->enumtype; }
+        inline bool              ClassIsValue(const Il2CppClass* k) { return k && k->byval_arg.valuetype; }
+        inline uint32_t          ClassToken(const Il2CppClass* k) { return k ? k->token : 0; }
 
-        inline const char* FieldName(const FieldInfo* f) { return f ? f->name : "?"; }
+        inline const char*       FieldName(const FieldInfo* f) { return f ? f->name : "?"; }
         inline const Il2CppType* FieldType(const FieldInfo* f) { return f ? f->type : nullptr; }
         inline int32_t           FieldOffset(const FieldInfo* f) { return f ? f->offset : 0; }
         inline uint32_t          FieldFlags(const FieldInfo* f) { return (f && f->type) ? f->type->attrs : 0; }
 
-        inline const char* MethName(const MethodInfo* m) { return m ? m->name : "?"; }
+        inline const char*       MethName(const MethodInfo* m) { return m ? m->name : "?"; }
         inline const Il2CppType* MethRet(const MethodInfo* m) { return m ? m->return_type : nullptr; }
 
         // Helper: Format to HEX string
@@ -43,6 +43,27 @@ namespace Dumper
             std::stringstream ss;
             ss << "0x" << std::hex << std::uppercase << static_cast<uint64_t>(val);
             return ss.str();
+        }
+
+        // Parse C# Field Modifiers
+        std::string GetFieldModifiers(uint32_t flags) {
+            std::string str = "";
+            uint32_t access = flags & FIELD_ATTRIBUTE_FIELD_ACCESS_MASK;
+            switch (access) {
+                case FIELD_ATTRIBUTE_PRIVATE: str += "private "; break;
+                case FIELD_ATTRIBUTE_PUBLIC: str += "public "; break;
+                case FIELD_ATTRIBUTE_FAMILY: str += "protected "; break;
+                case FIELD_ATTRIBUTE_ASSEMBLY:
+                case FIELD_ATTRIBUTE_FAM_AND_ASSEM: str += "internal "; break;
+                case FIELD_ATTRIBUTE_FAM_OR_ASSEM: str += "protected internal "; break;
+            }
+            if (flags & FIELD_ATTRIBUTE_LITERAL) {
+                str += "const ";
+            } else {
+                if (flags & FIELD_ATTRIBUTE_STATIC) str += "static ";
+                if (flags & FIELD_ATTRIBUTE_INIT_ONLY) str += "readonly ";
+            }
+            return str;
         }
 
         // Parse C# Method Modifiers
@@ -260,7 +281,7 @@ namespace Dumper
                         const Il2CppType* f_type = FieldType(field);
                         if (!f_name || f_name[0] < 32) continue;
 
-                        out << "\t\tpublic " << ResolveTypeName(f_type) << " " << f_name << "; // " << ToHex((uint32_t)FieldOffset(field)) << "\n";
+                        out << "\t\t" << GetFieldModifiers(FieldFlags(field)) << ResolveTypeName(f_type) << " " << f_name << "; // " << ToHex((uint32_t)FieldOffset(field)) << "\n";
                         hasFields = true;
                     }
                     if (hasFields) out << "\n";

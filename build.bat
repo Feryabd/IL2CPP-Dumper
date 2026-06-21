@@ -5,8 +5,21 @@ setlocal enabledelayedexpansion
 :: IL2CPP Dumper Automated Build Script for Android (All ABIs)
 :: ============================================================================
 
-set "SDK_CMAKE_DIR=%LOCALAPPDATA%\Android\Sdk\cmake\3.22.1\bin"
-set "NDK_TOOLCHAIN=%LOCALAPPDATA%\Android\Sdk\ndk\28.2.13676358\build\cmake\android.toolchain.cmake"
+:: Automatically find the highest available CMake version
+set "SDK_CMAKE_DIR="
+for /d %%I in ("%LOCALAPPDATA%\Android\Sdk\cmake\*") do (
+    if exist "%%I\bin\cmake.exe" (
+        set "SDK_CMAKE_DIR=%%I\bin"
+    )
+)
+
+:: Automatically find the highest available NDK version
+set "NDK_TOOLCHAIN="
+for /d %%I in ("%LOCALAPPDATA%\Android\Sdk\ndk\*") do (
+    if exist "%%I\build\cmake\android.toolchain.cmake" (
+        set "NDK_TOOLCHAIN=%%I\build\cmake\android.toolchain.cmake"
+    )
+)
 
 echo ============================================================================
 echo [BUILD] Checking dependencies...
@@ -79,6 +92,11 @@ for %%A in (%ABIS%) do (
         cd ..\..
         pause
         exit /b 1
+    )
+    
+    :: Update compile_commands.json for IntelliSense
+    if exist "compile_commands.json" (
+        copy /y "compile_commands.json" "..\..\compile_commands.json" >nul
     )
     
     :: Execute compilation
