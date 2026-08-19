@@ -25,9 +25,10 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
-    # 3. Memasang Android NDK secara otomatis
+    # 3. Memasang Android NDK (Menggunakan action nttld resmi yang aktif)
     - name: Setup Android NDK
-      uses: nndess/setup-ndk@v1
+      id: setup-ndk
+      uses: nttld/setup-ndk@v1
       with:
         ndk-version: r25c # Versi stabil yang sangat direkomendasikan untuk proyek C++ Android modern
 
@@ -48,9 +49,9 @@ jobs:
           mkdir -p build_$ARCH
           cd build_$ARCH
           
-          # Konfigurasi CMake menggunakan toolchain Android NDK
+          # Konfigurasi CMake menggunakan toolchain Android NDK yang diarahkan dari nttld
           cmake .. \
-            -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake \
+            -DCMAKE_TOOLCHAIN_FILE=${{ steps.setup-ndk.outputs.ndk-path }}/build/cmake/android.toolchain.cmake \
             -DANDROID_ABI=$ARCH \
             -DANDROID_PLATFORM=android-21 \
             -DCMAKE_BUILD_TYPE=Release
@@ -60,11 +61,12 @@ jobs:
           
           # Membuat folder output dan memindahkan berkas .so hasil compile
           mkdir -p ../build/libs/$ARCH
-          # Catatan: Sesuaikan nama output file biner jika CMakeLists.txt Anda menghasilkan nama lain
+          
+          # Salin file .so hasil kompilasi
           if [ -f "libil2cpp_dumper.so" ]; then
             cp libil2cpp_dumper.so ../build/libs/$ARCH/
           else
-            # Fallback jika nama output mengikuti standard library target default
+            # Fallback jika nama output biner di CMakeLists.txt menggunakan penamaan lain
             cp *.so ../build/libs/$ARCH/ 2>/dev/null || true
           fi
           
@@ -77,4 +79,4 @@ jobs:
       with:
         name: il2cpp-dumper-android-libs
         path: build/libs/
-        retention-days: 7 # File akan tersimpan di GitHub selama 7 hari sebelum dihapus otomatis
+        retention-days: 7 # File akan tersimpan di GitHub selama 7 hari
