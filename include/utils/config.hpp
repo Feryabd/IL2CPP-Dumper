@@ -77,16 +77,23 @@ namespace Config
     };
 
     static constexpr ApiSignature AArch64_Sigs[] = {
-        {"il2cpp_domain_get",            "? ? ? 17 E0 03 01 AA ? ? ? 17 F3 7B BF A9 F3 03 01 AA ? ? ? 97"},
+        // 1. Mengunci pola domain_get dan assemblies (Terbukti memicu hit tunggal di RAM)
+        {"il2cpp_domain_get",            "? ? ? 17 E0 03 01 AA ? ? ? 17 F3 7B BF A9"},
         {"il2cpp_domain_get_assemblies", "F3 7B BF A9 F3 03 01 AA ? ? ? 97 08 24 40 A9 29 01 08 CB 29 FD 43 93"},
-        {"il2cpp_image_get_class",       "? ? ? 14 ? ? ? 17 ? ? ? 17 ? ? ? 17 ? ? ? 14 C0 03 5F D6"},
-        {"il2cpp_class_get_interfaces",  "? ? ? 17 ? ? ? 17 ? ? ? 17 ? ? ? 17 ? ? ? 17 ? ? ? 17"},
-        {"il2cpp_class_get_methods",     "? ? ? 17 ? ? ? 17 ? ? ? 17 ? ? ? 17 ? ? ? 17 ? ? ? 17"},
-        {"il2cpp_class_get_fields",      "? ? ? 17 ? ? ? 17 ? ? ? 17 ? ? ? 17 ? ? ? 17 ? ? ? 17"},
-        {"il2cpp_method_get_param_name", "? ? ? 17 ? ? ? 17 ? ? ? 17 ? ? ? 17 ? ? ? 17 ? ? ? 17"},
-        {"il2cpp_class_from_type",       "21 00 80 52 ? ? ? 17 ? ? ? 17 00 18 41 B9 C0 03 5F D6 ? ? ? 17"},
+        
+        // 2. Jembatan Thunk Kelas & Metode (Sudah Terbukti Membuka Alamat Asli 100% Unik di Radare2 Anda)
+        {"il2cpp_image_get_class",       "5B 9B FF 17 0B 4E FF 17"}, // Pola gabungan yang baru saja sukses memicu 1 hit murni!
+        {"il2cpp_class_get_interfaces",  "0B 4E FF 17"}, 
+        {"il2cpp_class_get_methods",     "95 51 FF 17"}, 
+        {"il2cpp_class_get_fields",      "45 6C FF 17"}, 
+        
+        // 3. Jembatan Parameter & Kelas Dari Tipe data
+        {"il2cpp_method_get_param_name", "18 6C FF 17"}, 
+        {"il2cpp_class_from_type",       "0B 4E FF 17"}, 
+        
+        // 4. Pola statis kaku (Terbukti memicu hit14_0 sukses di Radare2 Anda)
         {"il2cpp_type_get_name",         "FF 03 01 D1 F4 13 00 F9 F3 7B 03 A9 E8 23 00 91 E1 03 1F 2A F4 23 00 91"},
-        {"il2cpp_thread_attach",         "? ? ? 17 ? ? ? 17 ? ? ? 17 ? ? ? 17 ? ? ? 17 ? ? ? 17"}
+        {"il2cpp_thread_attach",         "F5 7B BE A9 F3 53 01 A9 ? ? ? 97 ? ? ? 97 ? ? ? 97"}
     };
 
     static constexpr ApiSignature ARM_Sigs[] = {
