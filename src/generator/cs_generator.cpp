@@ -241,18 +241,22 @@ namespace Dumper
                 const char* imageName = image->name;
                 uint32_t classCount = image->typeCount;
 
-                UI::Log("INFO", "Exporting Assembly [" + std::to_string(i+1) + "/" + std::to_string(assemblyCount) + "] " + imageName);
+                UI::Log("INFO", "Exporting Assembly [" + std::to_string(i+1) + "/" + std::to_string(assemblyCount) + "] " + (imageName ? imageName : "Unknown"));
                 
-                out << "// ASSEMBLY: " << imageName << " (" << classCount << " classes)\n";
+                out << "// ASSEMBLY: " << (imageName ? imageName : "Unknown") << " (" << classCount << " classes)\n";
                 out << "namespace " << (image->nameNoExt ? image->nameNoExt : "Unknown") << "\n{\n";
 
                 for (size_t j = 0; j < classCount; ++j) {
                     const Il2CppClass* klass = il2cpp_image_get_class(image, j);
+                    // AMAN 1: Lewati jika kelas null akibat stripping
                     if (!klass) continue;
 
                     std::string ns = ClassNS(klass);
                     std::string name = ClassName(klass);
                     uint32_t flags = ClassFlags(klass);
+
+                    // AMAN 2: Cegah crash jika nama kelas kosong atau rusak
+                    if (name.empty()) name = "Class_" + std::to_string(j);
 
                     out << "\t// [Token: " << ToHex(ClassToken(klass)) << "]\n";
                     out << "\t// [TypeInfo RVA: " << ToHex(FindClassPointerOffset(gameAssembly, (uintptr_t)klass)) << "]\n";
@@ -267,7 +271,10 @@ namespace Dumper
                     
                     Il2CppClass* parent = ClassParent(klass);
                     if (parent) {
-                        out << " : " << ClassName(parent);
+                        std::string parentName = ClassName(parent);
+                        if (!parentName.empty()) {
+                            out << " : " << parentName;
+                        }
                     }
                     
                     out << "\n\t{\n";
@@ -277,9 +284,12 @@ namespace Dumper
                     FieldInfo* field;
                     bool hasFields = false;
                     while ((field = il2cpp_class_get_fields((Il2CppClass*)klass, &f_iter))) {
+                        // AMAN 3: Proteksi Field Null
+                        if (!field) continue;
+                        
                         const char* f_name = FieldName(field);
                         const Il2CppType* f_type = FieldType(field);
-                        if (!f_name || f_name[0] < 32) continue;
+                        if (!f_name || f_name[0] < 32 || !f_type) continue;
 
                         out << "\t\t" << GetFieldModifiers(FieldFlags(field)) << ResolveTypeName(f_type) << " " << f_name << "; // " << ToHex((uint32_t)FieldOffset(field)) << "\n";
                         hasFields = true;
@@ -290,6 +300,9 @@ namespace Dumper
                     void* m_iter = nullptr;
                     const MethodInfo* method;
                     while ((method = il2cpp_class_get_methods((Il2CppClass*)klass, &m_iter))) {
+                        // AMAN 4: Proteksi Metode Null
+                        if (!method) continue;
+
                         const char* m_name = MethName(method);
                         if (!m_name || m_name[0] < 32) continue;
 
@@ -299,11 +312,16 @@ namespace Dumper
                         out << "\t\t// RVA: " << ToHex(relative) << " VA: " << ToHex(addr) << "\n";
                         out << "\t\t" << GetModifiers(method->flags) << ResolveTypeName(method->return_type) << " " << m_name << "(";
 
-                        for (uint8_t p = 0; p < method->parameters_count; ++p) {
-                            const Il2CppType* p_type = method->parameters[p];
-                            const char* p_name = il2cpp_method_get_param_name(method, p);
-                            out << ResolveTypeName(p_type) << " " << (p_name ? p_name : "param" + std::to_string(p));
-                            if (p < method->parameters_count - 1) out << ", ";
+                        // AMAN 5: PROTEKSI UTAMA PEMICU FATAL SIGNAL 11 LOOP PARAMETER
+                        if (method->parameters_count > 0 && method->parameters != nullptr) {
+                            for (uint8_t p = 0; p < method->parameters_count; ++p) {
+                                const Il2CppType* p_type = method->parameters[p];
+                                if (!p_type) continue; // Amankan pointer parameter tipe data
+
+                                const char* p_name = il2cpp_method_get_param_name(method, p);
+                                out << ResolveTypeName(p_type) << " " << (p_name ? p_name : "param" + std::to_string(p));
+                                if (p < method->parameters_count - 1) out << ", ";
+                            }
                         }
 
                         out << ");\n";
