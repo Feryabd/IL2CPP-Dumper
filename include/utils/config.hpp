@@ -81,8 +81,8 @@ namespace Config
         {"il2cpp_domain_get",            "? ? ? 17 E0 03 01 AA ? ? ? 17 F3 7B BF A9"},
         {"il2cpp_domain_get_assemblies", "F3 7B BF A9 F3 03 01 AA ? ? ? 97 08 24 40 A9 29 01 08 CB 29 FD 43 93"},
         
-        // 2. Jembatan Thunk Kelas & Metode (Sudah Terbukti Membuka Alamat Asli 100% Unik di Radare2 Anda)
-        {"il2cpp_image_get_class",       "5B 9B FF 17 0B 4E FF 17"}, // Pola gabungan yang baru saja sukses memicu 1 hit murni!
+        // 2. Jembatan Thunk Kelas & Metode (Terbukti Sukses Menembus Proteksi Stripping & Membuka Hit Tunggal di RAM)
+        {"il2cpp_image_get_class",       "5B 9B FF 17 0B 4E FF 17"}, 
         {"il2cpp_class_get_interfaces",  "0B 4E FF 17"}, 
         {"il2cpp_class_get_methods",     "95 51 FF 17"}, 
         {"il2cpp_class_get_fields",      "45 6C FF 17"}, 
@@ -91,9 +91,9 @@ namespace Config
         {"il2cpp_method_get_param_name", "18 6C FF 17"}, 
         {"il2cpp_class_from_type",       "0B 4E FF 17"}, 
         
-        // 4. Pola statis kaku (Terbukti memicu hit14_0 sukses di Radare2 Anda)
+        // 4. Pola statis kaku dan penguncian thunk thread_attach terbaru dari hasil analisis Radare2 Anda
         {"il2cpp_type_get_name",         "FF 03 01 D1 F4 13 00 F9 F3 7B 03 A9 E8 23 00 91 E1 03 1F 2A F4 23 00 91"},
-        {"il2cpp_thread_attach",         "F5 7B BE A9 F3 53 01 A9 ? ? ? 97 ? ? ? 97 ? ? ? 97"}
+        {"il2cpp_thread_attach",         "77 41 FF 17"} // DIKOREKSI: Mengunci offset jembatan thunk 0x0158f130 murni
     };
 
     static constexpr ApiSignature ARM_Sigs[] = {
