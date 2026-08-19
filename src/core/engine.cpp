@@ -70,7 +70,7 @@ namespace Dumper
             UI::Log("ERR", "IL2CPP domain is null! Game is not fully initialized.");
             return;
         }
-        il2cpp_thread_attach(domain);
+        // il2cpp_thread_attach(domain);
 
         UI::Log("INFO", "Building AST & Exporting...");
         try {
